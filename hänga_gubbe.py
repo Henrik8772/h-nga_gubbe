@@ -11,63 +11,78 @@ def play_again():
             return False
         else:
             print("Var snäll och skriv 'ja' eller 'nej'.")
+            play_again()
+
+
+def play_game():
+    print("Välkommen till Hänga Gubbe!!!")
+    spela = input("Vill du spela? ja/nej: ").lower()
+    if spela == "ja":
+        hänga_gubbe()
+    elif spela == "nej":
+        print("Okej, hejdå!")
+        exit
+    else:
+        print("Skriv antingen 'ja' eller 'nej'")
+        play_game()
 
 
 def hänga_gubbe():
     guesses = 0
     play = True
 
-    print("Välkommen till Hänga Gubbe!!!")
-
     while play:
-        spela = input("Vill du spela? ja/nej: ")
 
-        if spela.lower() == "ja":
+        guessed_letters = []
 
-            guessed_letters = []
+        word_list = open("words.txt", "r")
+        word = random.choice(word_list.readline().split("," " "))
 
-            word_list = open("words.txt", "r")
-            word = random.choice(word_list.readline().split("," " "))
+        word_length = len(word)
+        word_guess = ["_"] * len(word)
 
-            word_length = len(word)
-            word_guess = ["_"] * len(word)
+        delimiter = ""
+        join_word_guess = delimiter.join(word_guess)
 
-            delimiter = ""
-            join_word_guess = delimiter.join(word_guess)
+        print("Ordet har", word_length, "bokstäver")
+        print(join_word_guess)
 
-            print("Ordet har", word_length, "bokstäver")
-            print(join_word_guess)
+        guesses = word_length * 2
 
-            guesses = word_length * 2
+        while guesses > 0 and "".join(word_guess) != word:
+            guess = input("Gissa på en bokstav!: ")
 
-            while guesses > 0 and "".join(word_guess) != word:
-                guess = input("Gissa på en bokstav!: ")
+            if guess in word and guess not in guessed_letters:
 
-                if guess in word:
-                    for i, letter in enumerate(word):
-                        if guess == letter:
-                            word_guess[i] = guess
-                    print("".join(word_guess))
+                for i, letter in enumerate(word):
+                    if guess == letter:
+                        word_guess[i] = guess
+                print("".join(word_guess))
 
-                else:
-                    guesses -= 1
-                    print("Fel gissning! Du har", guesses, "försök kvar.")
+            elif len(guess) != 1:
+                print("Skriv EN bokstav.")
+                continue
 
-            if "".join(word_guess) == word:
-                print("Yippie du vann!! Du hade", guesses, "försök kvar!!!")
+            elif guess in guessed_letters:
+                print("Denna bokstav har du redan använt")
+                continue
 
             else:
-                print("Tyvärr, du förlorade. Ordet var:", word)
+                guesses -= 1
+                print("Fel gissning! Du har", guesses, "försök kvar.")
 
-            play = play_again()
+            guessed_letters.append(guess)
+            print("Dessa bokstäver har du använt:")
+            print(", ".join(guessed_letters))
 
-        elif spela.lower() == "nej":
-            print("Hejdå! Ses igen")
-            play = False
+        if "".join(word_guess) == word:
+            print("Yippie du vann!! Du hade", guesses, "försök kvar!!!")
 
         else:
-            raise ValueError("Du måste skriva 'ja' eller 'nej'")
+            print("Tyvärr, du förlorade. Ordet var:", word)
+
+        play = play_again()
 
 
 if __name__ == "__main__":
-    hänga_gubbe()
+    play_game()
